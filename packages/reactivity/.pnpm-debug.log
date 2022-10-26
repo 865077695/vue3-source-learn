@@ -1,0 +1,66 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "total": 3,
+    "workspacePrefix": "E:\\example\\2022\\vue3-source-learn"
+  },
+  "1 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "@vue/reactivity",
+      "version": "1.0.0",
+      "main": "index.js",
+      "module": "dist/reactivity.esm-bundler.js",
+      "unpkg": "dist/reactivity.global.js",
+      "buildOptions": {
+        "name": "VueReactivity",
+        "formats": [
+          "esm-bundler",
+          "cjs",
+          "global"
+        ]
+      }
+    },
+    "prefix": "E:\\example\\2022\\vue3-source-learn\\packages\\reactivity"
+  },
+  "2 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "vue-source-3",
+      "version": "1.0.0",
+      "description": "vue源码模拟",
+      "main": "index.js",
+      "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+      },
+      "author": "",
+      "license": "ISC",
+      "dependencies": {
+        "vue": "^3.2.41"
+      },
+      "devDependencies": {
+        "esbuild": "^0.15.12",
+        "minimist": "^1.2.7",
+        "typescript": "^4.8.4"
+      }
+    },
+    "prefix": "E:\\example\\2022\\vue3-source-learn"
+  },
+  "3 debug pnpm:context": {
+    "currentLockfileExists": true,
+    "storeDir": "E:\\.pnpm-store\\v3",
+    "virtualStoreDir": "E:\\example\\2022\\vue3-source-learn\\node_modules\\.pnpm"
+  },
+  "4 debug pnpm:stage": {
+    "prefix": "E:\\example\\2022\\vue3-source-learn",
+    "stage": "resolution_started"
+  },
+  "5 error pnpm": {
+    "code": "ERR_PNPM_SPEC_NOT_SUPPORTED_BY_ANY_RESOLVER",
+    "pkgsStack": [],
+    "err": {
+      "name": "pnpm",
+      "message": "@workspace isn't supported by any available resolver.",
+      "code": "ERR_PNPM_SPEC_NOT_SUPPORTED_BY_ANY_RESOLVER",
+      "stack": "pnpm: @workspace isn't supported by any available resolver.\n    at Object.resolve (D:\\MyData\\zhangzq102\\AppData\\Roaming\\npm\\pnpm-global\\5\\node_modules\\.pnpm\\pnpm@6.32.9\\node_modules\\pnpm\\dist\\pnpm.cjs:86225:17)\n    at async run (D:\\MyData\\zhangzq102\\AppData\\Roaming\\npm\\pnpm-global\\5\\node_modules\\.pnpm\\pnpm@6.32.9\\node_modules\\pnpm\\dist\\pnpm.cjs:74299:23)"
+    }
+  }
+}
