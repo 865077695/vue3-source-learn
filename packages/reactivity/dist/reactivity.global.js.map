@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/index.ts", "../../shared/src/index.ts"],
+  "sourcesContent": ["import {isObject} from '@vue/shared'\r\nisObject({})\r\n\r\nexport default isObject", "export function isObject(value) {\n    return value !== null && typeof value === 'object'\n}"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;;;ACAO,WAAS,SAAS,OAAO;AAC5B,WAAO,UAAU,QAAQ,OAAO,UAAU;AAAA,EAC9C;;;ADDA,WAAS,CAAC,CAAC;AAEX,MAAO,cAAQ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/index.ts", "../src/effect.ts", "../src/reactive.ts"],
+  "sourcesContent": ["export * from './effect'\r\nexport * from './reactive'", "export function effect() {}", "export function reactive() {}"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;ACAO,SAAS,SAAS;AAAC;;;ACAnB,SAAS,WAAW;AAAC;",
+  "names": []
+}

@@ -1,3 +1,2 @@
-export function isObject(value) {
-  return value !== null && typeof value === 'object'
-}
+export * from './effect'
+export * from './reactive'
