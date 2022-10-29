@@ -16,6 +16,7 @@ export const mutableHandlers = {
         if(isObject(r)) {
             return reactive(r)
         }
+        return r
     },
     set(target, key, value, receiver) {
         // target[key] = value
