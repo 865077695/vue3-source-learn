@@ -21,6 +21,13 @@
         console.log('state.name', state.name)
         return "*" + state.name;
       });
+      // // computed支持get set
+      // let aliasName = computed({
+      //   get() {
+      //     return '*' + state.name
+      //   },
+      //   set(newValue) {}
+      // })
       debugger
       //   取值时会调用执行,多次调用不重复取值
       aliasName.value;
