@@ -5,6 +5,10 @@ export const enum ReactiveFlags {
     IS_REACIVE = '__v__isReactive', // 是否已是响应式对象
 }
 
+export function isReactive(target) {
+    return !!(target && target[ReactiveFlags.IS_REACIVE])
+}
+
 // 存储已代理的对象
 const reactiveMap = new WeakMap() // key只能是对象
 export function reactive(target) {

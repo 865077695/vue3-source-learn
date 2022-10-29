@@ -14,7 +14,7 @@ export class ReactiveEffect {
     public active = true
     public deps = [] // effect的依赖项
     public parent = undefined
-    constructor(public fn, private scheduler) { // public fn, this.fn
+    constructor(public fn, private scheduler) { // public fn, this.fn     fn中使用到的变量变化了就会触发scheduler
 
     }
 

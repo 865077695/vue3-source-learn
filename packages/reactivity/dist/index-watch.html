@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <script type="module">
+      // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
+      import { reactive, effect, computed, watch } from "./reactivity.esm.js";
+
+      // watch类似effect，状态会收集watch effect，属性变化触发scheduler
+      const state = reactive({ name: "zq", age: 18 });
+
+      watch(() => state.name, (newV, oldV) => {
+        console.log(newV, oldV)
+      })
+
+      state.name = 'zzq'
+      state.name = 'zz'
+      /**
+       // watch几种用法
+       // 对象是引用地址，无法区分新老值
+      //  不建议监听整个对象
+       watch(state, (newV, oldV) => {
+ 
+       })
+ 
+      //  监控对象的属性需要用函数的写法
+       watch(() => state.name, (newV, oldV) => {})
+ 
+       // 监听多个值
+       watch([state.name, state.age], () => {})
+
+      //  错误写法
+      watch(() => state, () => {})
+      // 正确写法
+      watch(state, () => {}) // 直接放一个对象，默认deep:true
+      watch(() => state, () => {}, {deep: true}) // 放函数，必须要加deep: true
+
+      state.name = 'zzq'
+       * */
+    </script>
+  </body>
+</html>
