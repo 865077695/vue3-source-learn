@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <script type="module">
+        // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
+        import {reactive, effect} from './reactivity.esm.js'
+        let obj = {name: 'zzq', age: 18}
+        const state = reactive(obj)
+        const runner = effect(() => {
+            console.log('runner')
+            app1.innerHTML = state.name + state.age // 
+            effect(() => {
+                app2.innerHTML = '**' + state.name + '**'
+            })
+        }, {
+            scheduler() {
+                console.log('数据变化了', this) // 传入该配置后，不会再出发自动更新，this就是effect，用户可以自行触发一些操作，类似watch操作
+                setTimeout(() => {
+                    this.run() // 或runner()
+                })
+            }
+        })
+        setTimeout(() => {
+            runner() // 自行触发一次更新，类似forceUpdate
+            runner.effect.stop() // 停止更新，但是还可以用runner更新
+            setTimeout(() => {
+                state.age = 19 // 不会再触发更新
+            }, 1000)
+        }, 1000)
+    </script>
+</body>
+
+</html>
