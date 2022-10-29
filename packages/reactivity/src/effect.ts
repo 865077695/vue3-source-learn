@@ -1,5 +1,3 @@
-import { ReactiveEffect } from "vue";
-
 export let activeEffect
 
 // 每次执行effect之前，清理掉effect中依赖的属性,重新收集，避免有些已经不需要依赖的数据还存在
@@ -12,7 +10,7 @@ function cleanupEffect(effect) {
     }
     effect.deps.length = 0 // 清理deps
 }
-class ReactiveEffect {
+export class ReactiveEffect {
     public active = true
     public deps = [] // effect的依赖项
     public parent = undefined
