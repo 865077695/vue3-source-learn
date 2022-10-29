@@ -1,5 +1,6 @@
+import { isObject } from "@vue/shared"
 import { activeEffect, track, trigger } from "./effect"
-import { ReactiveFlags } from "./reactive"
+import { reactive, ReactiveFlags } from "./reactive"
 
 export const mutableHandlers = {
     get(target, key, receiver) {
@@ -10,7 +11,11 @@ export const mutableHandlers = {
 
         // effect里有响应式变量时，会进入到这里
         track(target, key)
-        return Reflect.get(target, key, receiver) // 会把this指向代理对象
+        // return Reflect.get(target, key, receiver) // 会把this指向代理对象
+        let r = Reflect.get(target, key, receiver)
+        if(isObject(r)) {
+            return reactive(r)
+        }
     },
     set(target, key, value, receiver) {
         // target[key] = value
