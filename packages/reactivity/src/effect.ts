@@ -16,7 +16,7 @@ class ReactiveEffect {
     public active = true
     public deps = [] // effect的依赖项
     public parent = undefined
-    constructor(public fn) { // public fn, this.fn
+    constructor(public fn, private scheduler) { // public fn, this.fn
 
     }
 
@@ -37,12 +37,21 @@ class ReactiveEffect {
         }
 
     }
+    stop() {
+        if(this.active) {
+            cleanupEffect(this) // 移除双向依赖，并失活
+            this.active = false
+        }
+    }
 }
 
 // 依赖收集，将当前的effect放到全局变量上
-export function effect(fn) {
-    const _effect = new ReactiveEffect(fn) // 响应式的effect
+export function effect(fn, options:any={}) {
+    const _effect = new ReactiveEffect(fn, options.scheduler) // 响应式的effect
     _effect.run() // 创建时默认执行一次 
+    const runner = _effect.run.bind(_effect) // 保证执行runner时，this指向当前effect
+    runner.effect = _effect
+    return runner
 }
 
 // let mapping = {
@@ -104,7 +113,12 @@ export function trigger(target, key, newValue, oldValue) {
         effects.forEach(effect => {
             // 重新执行effect时，会将effect放到activeEffect，对比一下activeEffect是否是当前effect，避免无限嵌套执行，如果当前正在执行此effect就不重新执行此effect
             if(effect !== activeEffect) {
-                effect.run() // trigger触发run，每次调run都会重新依赖收集
+                if(!effect.scheduler) {
+
+                    effect.run() // trigger触发run，每次调run都会重新依赖收集
+                } else {
+                    effect.scheduler() // 组件更新可以基于scheduler实现
+                }
             }
         })
     }
