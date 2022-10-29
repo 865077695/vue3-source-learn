@@ -9,16 +9,17 @@
 </head>
 
 <body>
-    <div id="app"></div>
+    <div id="app1"></div>
+    <div id="app2"></div>
     <script type="module">
         // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
         import {reactive, effect} from './reactivity.esm.js'
         const state = reactive({ name: 'zzq', age: 18 })
         // console.log(state, state1)
         effect(() => {
-            app.innerHTML = state.name + state.age // 
+            app1.innerHTML = state.name + state.age // 
             effect(() => {
-
+                app2.innerHTML = '**' + state.name + '**'
             })
         })
         setTimeout(() => {

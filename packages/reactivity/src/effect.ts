@@ -51,7 +51,7 @@ export function track(target, key) {
     if (!dep) {
         depsMap.set(key, (dep = new Set()))
     }
-    let shouldTrack = dep.has(activeEffect)
+    let shouldTrack = !dep.has(activeEffect) //未收集的收集一下（双向存储）
     if(shouldTrack) {
         dep.add(activeEffect)
         activeEffect.deps.push(dep) // 收集该effect依赖的属性，后续需要停止effect时来清理对应属性中存储的该effect
