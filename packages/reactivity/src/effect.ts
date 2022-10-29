@@ -1,6 +1,17 @@
 import { ReactiveEffect } from "vue";
 
 export let activeEffect
+
+// 每次执行effect之前，清理掉effect中依赖的属性,重新收集，避免有些已经不需要依赖的数据还存在
+function cleanupEffect(effect) {
+    let {deps} = effect
+    for(let i = 0; i < deps.length; i++) {
+        const depEffects = deps[i]
+        // deps[i]: [effect1, effect2]: 所以依赖某个属性的effect组成的new set
+        depEffects.delete(effect) // 将effect从effect依赖的每个属性的dep(set)上删除
+    }
+    effect.deps.length = 0 // 清理deps
+}
 class ReactiveEffect {
     public active = true
     public deps = [] // effect的依赖项
@@ -18,7 +29,8 @@ class ReactiveEffect {
         try {
             this.parent = activeEffect
             activeEffect = this
-            return this.fn()
+            cleanupEffect(this) // 清理当前effect的依赖以及依赖的属性中存储的effect（双向清除）
+            return this.fn() // 调fn时候出发get做的依赖收集
         } finally {
             activeEffect = this.parent
             this.parent = undefined
@@ -47,14 +59,14 @@ export function track(target, key) {
     if (!depsMap) {
         targetMap.set(target, (depsMap = new Map()))
     }
-    let dep = depsMap.get(key) // 记录哪些effect依赖该属性
-    if (!dep) {
-        depsMap.set(key, (dep = new Set()))
+    let depEffects = depsMap.get(key) // 记录哪些effect依赖该属性
+    if (!depEffects) {
+        depsMap.set(key, (depEffects = new Set()))
     }
-    let shouldTrack = !dep.has(activeEffect) //未收集的收集一下（双向存储）
-    if(shouldTrack) {
-        dep.add(activeEffect)
-        activeEffect.deps.push(dep) // 收集该effect依赖的属性，后续需要停止effect时来清理对应属性中存储的该effect
+    let shouldTrack = !depEffects.has(activeEffect) //未收集的收集一下（双向存储）
+    if (shouldTrack) {
+        depEffects.add(activeEffect)
+        activeEffect.deps.push(depEffects) // 收集该effect依赖的属性，后续需要停止effect时来清理对应属性中存储的该effect
     }
 }
 
@@ -82,3 +94,18 @@ export function track(target, key) {
  *  proxy.age activeEffect = e2.parent
  * }
  */
+
+export function trigger(target, key, newValue, oldValue) {
+    const depsMap = targetMap.get(target) // map{key: setEffect}
+    if (!depsMap) return
+    const depEffects = depsMap.get(key) // [effect]
+    if (depEffects) {
+        const effects = [...depEffects]
+        effects.forEach(effect => {
+            // 重新执行effect时，会将effect放到activeEffect，对比一下activeEffect是否是当前effect，避免无限嵌套执行，如果当前正在执行此effect就不重新执行此effect
+            if(effect !== activeEffect) {
+                effect.run() // trigger触发run，每次调run都会重新依赖收集
+            }
+        })
+    }
+}

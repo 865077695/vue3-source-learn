@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <script type="module">
+        // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
+        import {reactive, effect} from './reactivity.esm.js'
+        const state = reactive({flag: false, name: 'zq', age: 18})
+
+        effect(() => {
+            console.log('effect run')
+            app1.innerHTML = state.flag ? state.name : state.age
+        })
+
+        setTimeout(() => {
+            state.flag = !state.flag
+            setTimeout(() => {
+                console.log('修改了age')
+                state.age = 20 // 此时修改age不应该触发effect的函数
+            }, 1000)
+        }, 1000)
+        // 默认第一次flag(false)会收集effect，age会收集当前的effect
+        // 第二次 flag(true)收集时去重，不会增加effect，name会收集effect
+        // 此时 flag有一个effect，age、name也各有一个effect。而该effect真正依赖的只有state.flag和state.name
+        // 如果此时去修改state.age一样触发更新了，这样明显不应该
+        // 所以每次重新触发effect.run时都应该清空依赖并重新收集
+    </script>
+</body>
+
+</html>

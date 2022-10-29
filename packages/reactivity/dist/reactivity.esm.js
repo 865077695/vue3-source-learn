@@ -1,5 +1,13 @@
 // packages/reactivity/src/effect.ts
 var activeEffect;
+function cleanupEffect(effect2) {
+  let { deps } = effect2;
+  for (let i = 0; i < deps.length; i++) {
+    const depEffects = deps[i];
+    depEffects.delete(effect2);
+  }
+  effect2.deps.length = 0;
+}
 var ReactiveEffect = class {
   constructor(fn) {
     this.fn = fn;
@@ -14,6 +22,7 @@ var ReactiveEffect = class {
     try {
       this.parent = activeEffect;
       activeEffect = this;
+      cleanupEffect(this);
       return this.fn();
     } finally {
       activeEffect = this.parent;
@@ -34,14 +43,28 @@ function track(target, key) {
   if (!depsMap) {
     targetMap.set(target, depsMap = /* @__PURE__ */ new Map());
   }
-  let dep = depsMap.get(key);
-  if (!dep) {
-    depsMap.set(key, dep = /* @__PURE__ */ new Set());
+  let depEffects = depsMap.get(key);
+  if (!depEffects) {
+    depsMap.set(key, depEffects = /* @__PURE__ */ new Set());
   }
-  let shouldTrack = !dep.has(activeEffect);
+  let shouldTrack = !depEffects.has(activeEffect);
   if (shouldTrack) {
-    dep.add(activeEffect);
-    activeEffect.deps.push(dep);
+    depEffects.add(activeEffect);
+    activeEffect.deps.push(depEffects);
+  }
+}
+function trigger(target, key, newValue, oldValue) {
+  const depsMap = targetMap.get(target);
+  if (!depsMap)
+    return;
+  const depEffects = depsMap.get(key);
+  if (depEffects) {
+    const effects = [...depEffects];
+    effects.forEach((effect2) => {
+      if (effect2 !== activeEffect) {
+        effect2.run();
+      }
+    });
   }
 }
 
@@ -53,16 +76,19 @@ function isObject(value) {
 // packages/reactivity/src/baseHandlers.ts
 var mutableHandlers = {
   get(target, key, receiver) {
-    console.log(key);
     if ("__v__isReactive" /* IS_REACIVE */ === key) {
       return true;
     }
-    console.log(activeEffect, key);
     track(target, key);
     return Reflect.get(target, key, receiver);
   },
   set(target, key, value, receiver) {
-    return Reflect.set(target, key, value, receiver);
+    let oldValue = target[key];
+    let r = Reflect.set(target, key, value, receiver);
+    if (oldValue !== value) {
+      trigger(target, key, value, oldValue);
+    }
+    return r;
   }
 };
 
@@ -92,6 +118,7 @@ export {
   activeEffect,
   effect,
   reactive,
-  track
+  track,
+  trigger
 };
 //# sourceMappingURL=reactivity.esm.js.map

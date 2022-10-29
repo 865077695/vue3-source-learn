@@ -14,7 +14,8 @@
     <script type="module">
         // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
         import {reactive, effect} from './reactivity.esm.js'
-        const state = reactive({ name: 'zzq', age: 18 })
+        let obj = {name: 'zzq', age: 18}
+        const state = reactive(obj)
         // console.log(state, state1)
         effect(() => {
             app1.innerHTML = state.name + state.age // 
