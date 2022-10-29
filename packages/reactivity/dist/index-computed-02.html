@@ -18,22 +18,17 @@
       // 计算属性目的是根据状态衍生属性，这个属性会有缓存功能，如果依赖的数据不变就不会重新计算
       let aliasName = computed(() => {
         console.log("默认不执行");
-        console.log('state.name', state.name)
         return "*" + state.name;
       });
-      debugger
-      //   取值时会调用执行,多次调用不重复取值
-      aliasName.value;
-      console.log(aliasName.value);
-      aliasName.value;
 
-      // 当依赖的值发生变化后会再次执行
-      state.name = "zqq";
-      aliasName.value;
+      // 计算属性也应该有依赖收集，effect和aliasName有依赖对应，aliasName和state.name有依赖对应，所以当state.name发生改变时，除了将aliasName的dirty变为false之外，还要根据aliasName上的deps来触发对应effect的更新
+      effect(() => {
+        app1.innerHTML = aliasName.value
+      })
 
-      // 计算属性内部维护一个dirty变量，控制是否重新执行
-      // dirty初始值是true，即需要取值。取值后会缓存起来并将dirty = false
-      // 如果依赖值变化了会将dirty = true，再取值时候，会执行获取新值并缓存
+      setTimeout(() => {
+        state.name = 'zzq'
+      }, 1000)
     </script>
   </body>
 </html>

@@ -70,6 +70,16 @@ export function track(target, key) {
     if (!depEffects) {
         depsMap.set(key, (depEffects = new Set()))
     }
+
+    trackEffects(depEffects)
+    // let shouldTrack = !depEffects.has(activeEffect) //未收集的收集一下（双向存储）
+    // if (shouldTrack) {
+    //     depEffects.add(activeEffect)
+    //     activeEffect.deps.push(depEffects) // 收集该effect依赖的属性，后续需要停止effect时来清理对应属性中存储的该effect
+    // }
+}
+
+export function trackEffects(depEffects) {
     let shouldTrack = !depEffects.has(activeEffect) //未收集的收集一下（双向存储）
     if (shouldTrack) {
         depEffects.add(activeEffect)
@@ -107,17 +117,33 @@ export function trigger(target, key, newValue, oldValue) {
     if (!depsMap) return
     const depEffects = depsMap.get(key) // [effect]
     if (depEffects) {
-        const effects = [...depEffects]
-        effects.forEach(effect => {
-            // 重新执行effect时，会将effect放到activeEffect，对比一下activeEffect是否是当前effect，避免无限嵌套执行，如果当前正在执行此effect就不重新执行此effect
-            if(effect !== activeEffect) {
-                if(!effect.scheduler) {
+        triggerEffects(depEffects)
+        // const effects = [...depEffects]
+        // effects.forEach(effect => {
+        //     // 重新执行effect时，会将effect放到activeEffect，对比一下activeEffect是否是当前effect，避免无限嵌套执行，如果当前正在执行此effect就不重新执行此effect
+        //     if(effect !== activeEffect) {
+        //         if(!effect.scheduler) {
 
-                    effect.run() // trigger触发run，每次调run都会重新依赖收集
-                } else {
-                    effect.scheduler() // 组件更新可以基于scheduler实现
-                }
-            }
-        })
+        //             effect.run() // trigger触发run，每次调run都会重新依赖收集
+        //         } else {
+        //             effect.scheduler() // 组件更新可以基于scheduler实现
+        //         }
+        //     }
+        // })
     }
+}
+
+export function triggerEffects(depEffects) {
+    const effects = [...depEffects]
+    effects.forEach(effect => {
+        // 重新执行effect时，会将effect放到activeEffect，对比一下activeEffect是否是当前effect，避免无限嵌套执行，如果当前正在执行此effect就不重新执行此effect
+        if(effect !== activeEffect) {
+            if(!effect.scheduler) {
+
+                effect.run() // trigger触发run，每次调run都会重新依赖收集
+            } else {
+                effect.scheduler() // 组件更新可以基于scheduler实现
+            }
+        }
+    })
 }

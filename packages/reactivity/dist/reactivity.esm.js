@@ -57,6 +57,9 @@ function track(target, key) {
   if (!depEffects) {
     depsMap.set(key, depEffects = /* @__PURE__ */ new Set());
   }
+  trackEffects(depEffects);
+}
+function trackEffects(depEffects) {
   let shouldTrack = !depEffects.has(activeEffect);
   if (shouldTrack) {
     depEffects.add(activeEffect);
@@ -69,17 +72,20 @@ function trigger(target, key, newValue, oldValue) {
     return;
   const depEffects = depsMap.get(key);
   if (depEffects) {
-    const effects = [...depEffects];
-    effects.forEach((effect2) => {
-      if (effect2 !== activeEffect) {
-        if (!effect2.scheduler) {
-          effect2.run();
-        } else {
-          effect2.scheduler();
-        }
-      }
-    });
+    triggerEffects(depEffects);
   }
+}
+function triggerEffects(depEffects) {
+  const effects = [...depEffects];
+  effects.forEach((effect2) => {
+    if (effect2 !== activeEffect) {
+      if (!effect2.scheduler) {
+        effect2.run();
+      } else {
+        effect2.scheduler();
+      }
+    }
+  });
 }
 
 // packages/shared/src/index.ts
@@ -101,6 +107,7 @@ var mutableHandlers = {
     if (isObject(r)) {
       return reactive(r);
     }
+    return r;
   },
   set(target, key, value, receiver) {
     let oldValue = target[key];
@@ -144,9 +151,16 @@ var ComputedRefImpl = class {
     this._dirty = true;
     this.effect = new ReactiveEffect(getter, () => {
       this._dirty = true;
+      if (this.dep) {
+        triggerEffects(this.dep);
+      }
     });
   }
   get value() {
+    if (activeEffect) {
+      const depEffects = this.dep || (this.dep = /* @__PURE__ */ new Set());
+      trackEffects(depEffects);
+    }
     if (this._dirty) {
       this._value = this.effect.run();
       this._dirty = false;
@@ -178,6 +192,8 @@ export {
   effect,
   reactive,
   track,
-  trigger
+  trackEffects,
+  trigger,
+  triggerEffects
 };
 //# sourceMappingURL=reactivity.esm.js.map
