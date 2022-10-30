@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <script type="module">
+      // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
+      import { reactive, effect, computed, watch ,watchEffect} from "./reactivity.esm.js";
+
+      // watch = effect + 自定义scheduler
+      // watchEffect = effect，watchEffect写法比watch简单的多，不用写依赖，fn函数中的变量变化时会触发回调函数执行
+      // watchEffect相比于Effect可以传一些deep、immediate等配置属性
+      
+      // watch类似effect，状态会收集watch effect，属性变化触发scheduler
+      const state = reactive({ name: "zq", age: 18 });
+
+      // 和effect一样，基于effect，属性和effect双向收集，默认会立即执行
+      watchEffect(() => {
+        app1.innerHTML = state.name
+      })
+    </script>
+  </body>
+</html>

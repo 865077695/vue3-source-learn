@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <script type="module">
+      // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
+      import { reactive, effect, computed, watch ,watchEffect} from "./reactivity.esm.js";
+
+
+      const state = reactive({name: 'zq'})
+      // 当数据变化了，希望根据最新数据，获取结果
+      // 第一次 数据变化，调用一个接口 getData() 返回一个值  耗时 1000ms  1
+      // 第二次数据变化，再调用getData()  返回一个值  耗时500ms  2
+      // 最终期望显示2
+      // 使用cleanUp清除还未执行完成的上次函数
+
+      let timer = 3000
+      function getData(data) {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(data)
+          }, timer -= 1000)
+        })
+      }
+
+      // 这种写法最后输出顺序为2 1
+      // watch(() => state.name, async function(newValue) {
+      //   let r = await getData(newValue)
+      //   app1.innerHTML = r
+      // })
+
+
+      // // 后触发的回调函数把上一个回调函数中的flag改成了false，上一个就不会再触发innerHTML了
+      // let arr = []
+      // watch(() => state.name, async function(newValue) {
+        
+      //   let flag = true
+      //   while(arr.length > 0) {
+      //     let cb = arr.shift();
+      //     cb() // 设置flag值
+      //   }
+
+      //   arr.push(() => {flag = false})
+
+      //   let r = await getData(newValue)
+      //   if(flag) {
+      //     app1.innerHTML = r
+      //   }
+      // })
+      // state.name = 1
+      // state.name = 2
+
+
+      // onCleanUp: 重复触发的回调函数，修改上一次的flag变量
+      watch(()=>state.name, async function(newV, oldV, onCleanup) {
+        let flag = true
+        onCleanup(() => { // 闭包： 再次被触发时，会调用上次的这个函数，后面的一些异步操作会受影响
+          flag = false
+        })
+        let r = await getData(newValue)
+        if(flag) {
+          app.innerHTML = r
+        }
+      })
+    </script>
+  </body>
+</html>

@@ -10,6 +10,8 @@ function cleanupEffect(effect) {
     }
     effect.deps.length = 0 // 清理deps
 }
+
+// 这个类用来记录实例effect依赖的属性、状态、当前上下文，另外提供run方法来触发回调函数执行，在回调函数fn执行过程中会进行依赖收集
 export class ReactiveEffect {
     public active = true
     public deps = [] // effect的依赖项
