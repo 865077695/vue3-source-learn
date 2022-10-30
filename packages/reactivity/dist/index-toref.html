@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <script type="module">
+        // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
+        import { reactive, effect, watchEffect, ref, toRef, toRefs, proxyRefs } from './reactivity.esm.js'
+        // ref一般用于处理基本类型数据，以及当一些引用类型数据可能被改变时
+        // ref处理对象只是把用proxy代理后的对象用value包了一下
+        const flag = ref(true)
+        let person = reactive({name: 'zq', age: 13})
+        // toRef建立一个取值代理
+        // let name= toRef(person, 'name') // name.value === person.name  name.age === person.age   
+        // let age = toRef(person, 'age')
+
+        let personRef = toRefs(person) // 一次全转
+        watchEffect(() => {
+            const {name, age} = personRef
+            app1.innerHTML = name.value // 页面中此处不用.value
+
+            // // proxyRefs: 页面中使用proxyRefs处理 不用.value
+            // const {name, age} = proxyRefs(personRef)
+            // app1.innerHTML = name // 此处收集依赖的是针对的 person.name.value,最终还是代理到person上的
+            // console.log(name)
+        })
+
+        // setTimeout(() => {
+        //     personRef.name.value = 'zz'
+        // }, 1000)
+
+
+    </script>
+</body>
+
+</html>
