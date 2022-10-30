@@ -71,21 +71,21 @@ function trigger(target, key, newValue, oldValue) {
   if (!depsMap)
     return;
   const depEffects = depsMap.get(key);
-  if (depEffects) {
-    triggerEffects(depEffects);
-  }
+  triggerEffects(depEffects);
 }
 function triggerEffects(depEffects) {
-  const effects = [...depEffects];
-  effects.forEach((effect2) => {
-    if (effect2 !== activeEffect) {
-      if (!effect2.scheduler) {
-        effect2.run();
-      } else {
-        effect2.scheduler();
+  if (depEffects) {
+    const effects = [...depEffects];
+    effects.forEach((effect2) => {
+      if (effect2 !== activeEffect) {
+        if (!effect2.scheduler) {
+          effect2.run();
+        } else {
+          effect2.scheduler();
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 // packages/shared/src/index.ts
@@ -154,9 +154,7 @@ var ComputedRefImpl = class {
     this._dirty = true;
     this.effect = new ReactiveEffect(getter, () => {
       this._dirty = true;
-      if (this.dep) {
-        triggerEffects(this.dep);
-      }
+      triggerEffects(this.dep);
     });
   }
   get value() {
@@ -237,6 +235,35 @@ function watch(source, cb, options) {
 function watchEffect(fn, options) {
   doWtach(fn, null, options);
 }
+
+// packages/reactivity/src/ref.ts
+function ref(value) {
+  return new RefImpl(value);
+}
+function toReactive(value) {
+  return isObject(value) ? reactive(value) : value;
+}
+var RefImpl = class {
+  constructor(rawValue) {
+    this.rawValue = rawValue;
+    this.dep = void 0;
+    this.__v_isRef = true;
+    this._value = toReactive(rawValue);
+  }
+  get value() {
+    if (activeEffect) {
+      trackEffects(this.dep || (this.dep = /* @__PURE__ */ new Set()));
+    }
+    return this._value;
+  }
+  set value(newValue) {
+    if (newValue !== this.rawValue) {
+      this._value = toReactive(newValue);
+      this.rawValue = newValue;
+      triggerEffects(this.dep);
+    }
+  }
+};
 export {
   ReactiveEffect,
   ReactiveFlags,
@@ -245,6 +272,7 @@ export {
   effect,
   isReactive,
   reactive,
+  ref,
   track,
   trackEffects,
   trigger,

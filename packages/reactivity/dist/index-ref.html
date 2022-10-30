@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <script type="module">
+        // import { reactive, effect } from '/node_modules/@vue/reactivity/dist/reactivity.esm-browser.js'
+        import {reactive, effect, watchEffect, ref} from './reactivity.esm.js'
+        // ref一般用于处理基本类型数据，以及当一些引用类型数据可能被改变时
+        // ref处理对象只是把用proxy代理后的对象用value包了一下
+        const flag = ref(true)
+
+        watchEffect(() => {
+            app1.innerHTML = flag.value
+        })
+console.log(flag)
+        setTimeout(() => {
+            flag.value = !flag.value
+        })
+    </script>
+</body>
+
+</html>

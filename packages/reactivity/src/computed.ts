@@ -11,9 +11,7 @@ class ComputedRefImpl{
     // 取值的时候才执行effect.run
     this.effect = new ReactiveEffect(getter, () => { // 第二个参数是scheduler,有scheduler时不会自动更新，只会在更新时调scheduler
       this._dirty = true
-      if(this.dep) {
-        triggerEffects(this.dep)
-      }
+      triggerEffects(this.dep)
     })
   }
 
