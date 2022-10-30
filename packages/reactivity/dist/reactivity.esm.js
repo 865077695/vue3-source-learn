@@ -1,3 +1,47 @@
+// packages/reactivity/src/effectScope.ts
+var activeEffectScope;
+var EffectScope = class {
+  constructor(detached = false) {
+    this.active = true;
+    this.effects = [];
+    if (!detached && activeEffectScope) {
+      activeEffectScope.scopes || (activeEffectScope.scopes = []).push(this);
+    }
+  }
+  run(fn) {
+    if (this.active) {
+      try {
+        activeEffectScope = this;
+        return fn();
+      } finally {
+        activeEffectScope = this.parent;
+        this.parent = null;
+      }
+    }
+  }
+  stop() {
+    if (this.active) {
+      for (let i = 0; i < this.effects.length; i++) {
+        this.effects[i].stop();
+      }
+      this.active = false;
+    }
+    if (this.scopes) {
+      for (let i = 0; i < this.scopes.length; i++) {
+        this.scopes[i].stop();
+      }
+    }
+  }
+};
+function recordEffectScope(effect2) {
+  if (activeEffectScope && activeEffectScope.active) {
+    activeEffectScope.effects.push(effect2);
+  }
+}
+function effectScope(detached) {
+  return new EffectScope(detached);
+}
+
 // packages/reactivity/src/effect.ts
 var activeEffect;
 function cleanupEffect(effect2) {
@@ -15,6 +59,7 @@ var ReactiveEffect = class {
     this.active = true;
     this.deps = [];
     this.parent = void 0;
+    recordEffectScope(this);
   }
   run() {
     if (!this.active) {
@@ -307,11 +352,14 @@ export {
   ReactiveEffect,
   ReactiveFlags,
   activeEffect,
+  activeEffectScope,
   computed,
   effect,
+  effectScope,
   isReactive,
   proxyRefs,
   reactive,
+  recordEffectScope,
   ref,
   toRef,
   toRefs,

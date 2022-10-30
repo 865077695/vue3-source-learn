@@ -1,3 +1,5 @@
+import { recordEffectScope } from "./effectScope"
+
 export let activeEffect
 
 // 每次执行effect之前，清理掉effect中依赖的属性,重新收集，避免有些已经不需要依赖的数据还存在
@@ -17,7 +19,7 @@ export class ReactiveEffect {
     public deps = [] // effect的依赖项
     public parent = undefined
     constructor(public fn, private scheduler) { // public fn, this.fn     fn中使用到的变量变化了就会触发scheduler
-
+        recordEffectScope(this) // 记录入scopeEffect
     }
 
     run() {
